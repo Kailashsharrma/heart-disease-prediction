@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Heart Disease Prediction</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf4f2;--grid:#f1dcd8;--card:#fff;--ink:#1d2433;--mute:#667085;--line:#e8d5d1;--red:#c8102e;--amber:#d98a00;--green:#1f7a5c;--track:#efe3e0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171219;--grid:#251c28;--card:#211a24;--ink:#f3eaee;--mute:#a79aa5;--line:#3a2d3d;--red:#ff4d6a;--amber:#f0b429;--green:#3ecf9b;--track:#322735}}
+:root[data-theme="dark"]{--bg:#171219;--grid:#251c28;--card:#211a24;--ink:#f3eaee;--mute:#a79aa5;--line:#3a2d3d;--red:#ff4d6a;--amber:#f0b429;--green:#3ecf9b;--track:#322735}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "DM Sans",system-ui,sans-serif;
+background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font:800 20px "Fraunces",serif;display:flex;align-items:center;gap:8px}
+button{font:inherit;cursor:pointer}
+.theme{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+h1{font:800 clamp(32px,6vw,56px)/1.05 "Fraunces",serif;margin:28px 0 8px;max-width:14ch;letter-spacing:-.02em}
+.sub{color:var(--mute);max-width:52ch;margin:0 0 16px}
+.ecg{height:70px;overflow:hidden;border-block:1px solid var(--line);margin:8px 0 24px;position:relative}
+.ecg svg{width:200%;height:100%;animation:run 4s linear infinite}
+@keyframes run{to{transform:translateX(-50%)}}
+.ecg path{fill:none;stroke:var(--red);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.grid{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:900px){.grid{grid-template-columns:1.05fr 1fr}.res{position:sticky;top:16px;align-self:start}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.card h2{font:600 20px "Fraunces",serif;margin:0 0 4px}
+.hint{color:var(--mute);font-size:14px;margin:0 0 14px}
+.f{margin:0 0 16px}
+.f label{display:flex;justify-content:space-between;font-weight:500;font-size:15px}
+.f output{font-weight:700;color:var(--red)}
+input[type=range]{width:100%;accent-color:var(--red);height:28px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:90px;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--ink)}
+.seg button[aria-pressed=true]{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);font-weight:700}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.gauge{width:100%;max-width:340px;display:block;margin:0 auto}
+.gauge .arc{transition:stroke-dashoffset .6s ease,stroke .3s}
+.big{font:800 54px/1 "Fraunces",serif;text-anchor:middle}
+.lvl{text-align:center;font-weight:700;font-size:18px;margin:0}
+.lvlsub{text-align:center;color:var(--mute);font-size:14px;margin:2px 0 16px}
+.heart{display:inline-block;animation:beat 1s ease-in-out infinite;transform-origin:center}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.22)}30%{transform:scale(1)}45%{transform:scale(1.12)}}
+.lev{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;margin:0 0 12px;font-size:15px}
+.lev .bar{grid-column:1/-1;height:8px;background:var(--track);border-radius:4px;overflow:hidden}
+.lev .bar i{display:block;height:100%;background:var(--green);border-radius:4px;transition:width .5s}
+.lev b{color:var(--green)}
+.tip{font-size:14px;color:var(--mute);border-top:1px dashed var(--line);padding-top:12px;margin-top:8px}
+.warn{background:color-mix(in srgb,var(--amber) 14%,transparent);border:1px solid var(--amber);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:16px}
+.save.dl{background:transparent;color:var(--red);border:2px solid var(--red);margin-top:10px}
+.hist{display:flex;gap:6px;align-items:flex-end;height:60px;margin-top:8px}
+.hist span{flex:1;border-radius:4px 4px 0 0;min-height:4px}
+.save{width:100%;margin-top:14px;padding:12px;border-radius:10px;border:0;background:var(--red);color:#fff;font-weight:700}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.seg.w button{min-width:0;flex:1 1 auto;padding:10px 8px;font-size:14px;white-space:normal;line-height:1.2;overflow-wrap:anywhere}
+.seg.w button[aria-pressed=true]{font-weight:600}.err{color:var(--red);font-size:14px;margin:8px 0 0;text-align:center}.lbl{display:block;font-weight:500;font-size:15px;margin-bottom:6px}</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="brand"><span class="heart" id="h1" aria-hidden="true">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--red)"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.3 5c2.1 0 3.8 1.2 5.7 3.3C13.900 6.200 15.600 5 17.700 5 21 5 23.100 8.400 21.600 11.800 19.500 16.400 12 21 12 21z"/></svg></span>Heart Disease Prediction</div><button class="theme" id="theme">Dark mode</button></header>
+<h1>Check your heart risk.</h1>
+<p class="sub">Enter your clinical readings. Our KNN machine-learning model, trained on the heart disease dataset, estimates your risk instantly.</p>
+<div class="ecg" aria-hidden="true"><svg viewBox="0 0 800 70" preserveAspectRatio="none"><path id="trace" d=""/></svg></div>
+<div class="grid">
+  <section class="card" aria-label="Patient details">
+    <h2>Patient details</h2><p class="hint">Use your latest report values.</p>
+    <div id="form"></div>
+  </section>
+  <section class="card res" aria-live="polite" aria-label="Result">
+    <svg class="gauge" viewBox="0 0 240 150" role="img" aria-label="Risk gauge">
+      <path d="M20 125 A100 100 0 0 1 220 125" fill="none" stroke="var(--track)" stroke-width="18" stroke-linecap="round"/>
+      <path id="arc" class="arc" d="M20 125 A100 100 0 0 1 220 125" fill="none" stroke="var(--green)" stroke-width="18" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"/>
+      <text id="pct" class="big" x="120" y="112" fill="currentColor">--</text>
+    </svg>
+    <p class="lvl" id="lvl">Loading...</p>
+    <p class="lvlsub">model confidence for heart disease</p>
+    <p class="err" id="err" hidden></p>
+    <h2 style="font-size:17px">What would help most</h2>
+    <p class="hint">Estimated drop in risk if you improved these.</p>
+    <div id="levers"></div>
+    <div class="tip" id="tip"></div>
+    <button class="save dl" id="dl">Download report</button>
+    <div class="warn"><b>Not a diagnosis.</b> This is a machine-learning estimate for learning purposes. Please consult a doctor for medical advice.</div>
+  </section>
+</div>
+</div>
+<script>
+const F=[
+ {k:'Age',l:'Age',t:'r',min:18,max:100,v:45,u:' yrs'},
+ {k:'Sex',l:'Sex',t:'s',o:[['M','Male'],['F','Female']],v:'M'},
+ {k:'ChestPainType',l:'Chest pain type',t:'s',o:[['ATA','Atypical'],['NAP','Non-anginal'],['TA','Typical'],['ASY','Asymptomatic']],v:'ATA'},
+ {k:'RestingBP',l:'Resting blood pressure',t:'r',min:80,max:200,v:120,u:' mmHg'},
+ {k:'Cholesterol',l:'Cholesterol',t:'r',min:100,max:600,v:200,u:' mg/dL'},
+ {k:'FastingBS',l:'Fasting blood sugar > 120 mg/dL',t:'s',o:[[0,'No'],[1,'Yes']],v:0},
+ {k:'RestingECG',l:'Resting ECG',t:'s',o:[['Normal','Normal'],['ST','ST-T abnormality'],['LVH','LV hypertrophy']],v:'Normal'},
+ {k:'MaxHR',l:'Max heart rate',t:'r',min:60,max:220,v:150,u:' bpm'},
+ {k:'ExerciseAngina',l:'Exercise-induced angina',t:'s',o:[['N','No'],['Y','Yes']],v:'N'},
+ {k:'Oldpeak',l:'Oldpeak (ST depression)',t:'r',min:0,max:6,step:.1,v:1,u:''},
+ {k:'ST_Slope',l:'ST slope',t:'s',o:[['Up','Up'],['Flat','Flat'],['Down','Down']],v:'Up'}
+];
+const st={};F.forEach(f=>st[f.k]=f.v);
+const form=document.getElementById('form');
+F.forEach(f=>{const d=document.createElement('div');d.className='f';
+ if(f.t==='r'){d.innerHTML=`<label for="${f.k}">${f.l}<output id="o_${f.k}"></output></label><input type="range" id="${f.k}" min="${f.min}" max="${f.max}" step="${f.step||1}" value="${f.v}">`;
+  d.querySelector('input').oninput=e=>{st[f.k]=+e.target.value;go()}}
+ else{d.innerHTML=`<span class="lbl">${f.l}</span><div class="seg w">`+f.o.map(([v,t])=>`<button type="button" data-v="${v}" aria-pressed="${v==f.v}">${t}</button>`).join('')+'</div>';
+  d.querySelector('.seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+   d.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));st[f.k]=typeof f.v==='number'?+b.dataset.v:b.dataset.v;go()}}
+ form.appendChild(d)});
+function level(p){return p<.3?['Low risk','var(--green)','#1f7a5c','Keep up healthy habits and get a routine check-up yearly.']:p<.5?['Moderate risk','var(--amber)','#d98a00','Some readings need attention. A doctor visit and cholesterol/BP check is a good idea.']:['High risk','var(--red)','#c8102e','The model flags a high chance of heart disease. Please see a cardiologist soon.']}
+function path(hr){const w=400,p=[];let x=0;const b=Math.max(120,Math.round(w*(60/hr)/1.1));
+ while(x<w){p.push(`L${x} 40`,`L${x+b*.25} 40`,`L${x+b*.3} 32`,`L${x+b*.35} 40`,`L${x+b*.42} 44`,`L${x+b*.48} 6`,`L${x+b*.54} 62`,`L${x+b*.6} 40`,`L${x+b*.75} 40`,`L${x+b*.82} 30`,`L${x+b*.9} 40`);x+=b}
+ const a=p.join(' ');return 'M0 40 '+a+' L400 40 '+a.replace(/L([\d.]+) /g,(m,n)=>'L'+(+n+400)+' ')}
+let last=null,timer=null,seq=0;
+function labels(){F.filter(f=>f.t==='r').forEach(f=>document.getElementById('o_'+f.k).textContent=st[f.k]+f.u);
+ const hr=st.MaxHR/2.1;document.getElementById('trace').setAttribute('d',path(hr));
+ document.querySelector('.ecg svg').style.animationDuration=(4*72/hr)+'s';
+ document.querySelector('.brand .heart').style.animationDuration=(60/hr)+'s'}
+function go(){labels();clearTimeout(timer);timer=setTimeout(run,180)}
+async function run(){const id=++seq,err=document.getElementById('err');
+ try{const r=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(st)});
+  if(!r.ok)throw new Error('Server error '+r.status);const d=await r.json();if(id!==seq)return;err.hidden=true;show(d)}
+ catch(e){err.hidden=false;err.textContent='Cannot reach the prediction server. Start it with: uvicorn main:app --reload'}}
+function show(d){last=d;const p=d.probability,[n,c,hex,t]=level(p);
+ const arc=document.getElementById('arc');arc.style.strokeDashoffset=314*(1-p);arc.style.stroke=c;
+ document.getElementById('pct').textContent=Math.round(p*100)+'%';
+ const l=document.getElementById('lvl');l.textContent=n;l.style.color=c;
+ document.getElementById('tip').textContent=t;
+ document.getElementById('levers').innerHTML=d.levers.length?d.levers.map(x=>`<div class="lev"><span>${x.label}</span><b>-${Math.round(x.drop*100)} pts</b><div class="bar"><i style="width:${x.drop/d.levers[0].drop*100}%"></i></div></div>`).join(''):'<p class="hint">No single change lowers the score further. Nice, or talk to your doctor.</p>'}
+function report(){const p=last.probability,[n,,hex,t]=level(p),d=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+ const rows=F.map(f=>{let v=st[f.k];if(f.t==='s')v=f.o.find(o=>String(o[0])===String(v))[1];else v+=f.u;return `<tr><td>${f.l}</td><td>${v}</td></tr>`}).join('');
+ const lv=last.levers.map(x=>`<li>${x.label} <b>(-${Math.round(x.drop*100)} pts)</b></li>`).join('')||'<li>No further improvements flagged.</li>';
+ return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Heart Disease Report</title><style>
+body{font:16px/1.6 system-ui,sans-serif;color:#1d2433;max-width:720px;margin:0 auto;padding:32px 20px}
+h1{font:800 30px Georgia,serif;margin:0}h2{font:700 18px Georgia,serif;margin:28px 0 8px;border-bottom:1px solid #e8d5d1;padding-bottom:4px}
+.top{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #c8102e;padding-bottom:12px}
+.score{text-align:center;margin:24px 0}.score b{font:800 64px Georgia,serif;color:${hex};display:block;line-height:1}
+table{width:100%;border-collapse:collapse}td{padding:6px 0;border-bottom:1px solid #f1dcd8}td:last-child{text-align:right;font-weight:600}
+.warn{background:#fff6e0;border:1px solid #d98a00;border-radius:8px;padding:10px 12px;font-size:14px;margin-top:28px}
+button{margin-top:20px;padding:10px 18px;border:0;border-radius:8px;background:#c8102e;color:#fff;font-size:15px;cursor:pointer}@media print{button{display:none}}</style></head><body>
+<div class="top"><h1>Heart Disease Report</h1><span>${d}</span></div>
+<div class="score"><b>${Math.round(p*100)}%</b><strong style="color:${hex}">${n}</strong><br>KNN model confidence for heart disease</div>
+<h2>Your readings</h2><table>${rows}</table><h2>What would help most</h2><ul>${lv}</ul><h2>Next step</h2><p>${t}</p>
+<div class="warn"><b>Not a diagnosis.</b> Machine-learning estimate for learning purposes. Consult a doctor for medical advice.</div>
+<button onclick="window.print()">Print or save as PDF</button></body></html>`}
+document.getElementById('dl').onclick=()=>{if(!last)return;const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob([report()],{type:'text/html'}));a.download='heart-disease-report.html';a.click()};
+const tb=document.getElementById('theme');
+tb.onclick=()=>{const r=document.documentElement,d=r.dataset.theme==='dark';r.dataset.theme=d?'light':'dark';tb.textContent=d?'Dark mode':'Light mode'};
+go();
+</script>
+</body>
+</html>
