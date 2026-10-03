@@ -1,5 +1,7 @@
 # Heart Disease Prediction
 
+**Live Demo:** https://heart-disease-prediction-0x8e.onrender.com
+
 A web app that estimates heart disease risk from clinical readings, using a trained **KNN machine-learning model** with a **FastAPI** backend and an interactive HTML frontend.
 
 ## Features
